@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WhatsApp-Clone</string>
+    <string name="sign_up_name">Nom</string>
+    <string name="sign_up_phone_number">Numéro de téléphone</string>
+    <string name="sign_up_email">Email</string>
+    <string name="sign_up_password">Mot de passe</string>
+    <string name="sign_up_password_confirmed">Confirmer le mot de passe</string>
+    <string name="sign_up_button">S\'inscrire</string>
+    <string name="fields_empty_msg">Les champs ne doivent pas être vides</string>
+    <string name="email_not_valid_msg">L\'email n\'est pas valide</string>
+    <string name="password_not_enough_char">Votre mot de passe doit contenir plus de 6 caractères</string>
+    <string name="check_password_and_confirmed">Ces deux mots de passe ne sont pas les mêmes</string>
+</resources>
