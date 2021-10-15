@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_message_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/pressed_item_animation"
+    android:clickable="true"
+    android:focusable="true">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/item_message_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/gto"
+        app:civ_border_color="#00bc48"
+        app:civ_border_width="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/item_message_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="Eikichi"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/item_message_image"
+        app:layout_constraintTop_toTopOf="@+id/item_message_image" />
+
+    <TextView
+        android:id="@+id/item_message_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:text="Hello, how are you ? I am going to market."
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@+id/item_message_notification_layout"
+        app:layout_constraintStart_toStartOf="@+id/item_message_title"
+        app:layout_constraintTop_toBottomOf="@+id/item_message_title" />
+
+    <RelativeLayout
+        android:id="@+id/item_message_notification_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/item_message_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_message_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/item_message_notification_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:src="@color/blue" />
+
+        <TextView
+            android:id="@+id/item_message_notification_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="2"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
