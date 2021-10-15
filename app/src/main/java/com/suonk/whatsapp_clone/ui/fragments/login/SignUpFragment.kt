@@ -46,6 +46,7 @@ class SignUpFragment : Fragment() {
     private fun initializeUI() {
         contextActivity = activity as MainActivity
 
+        addUserImageClick()
         signUpButtonClick()
         passwordGoToVisibleClick()
         passwordGoToInvisibleClick()
@@ -113,6 +114,12 @@ class SignUpFragment : Fragment() {
                     signUpPassword.transformationMethod = PasswordTransformationMethod.getInstance()
                 }
             }
+        }
+    }
+
+    private fun addUserImageClick() {
+        binding?.signUpUserImg?.setOnClickListener {
+            contextActivity.openGalleryForImage(binding?.signUpUserImg!!)
         }
     }
 
