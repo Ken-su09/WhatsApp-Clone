@@ -52,6 +52,7 @@ class SignUpFragment : Fragment() {
 
     private lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
     private lateinit var myCredential: PhoneAuthCredential
+    private var passwordVisible = false
 
     //endregion
 
@@ -125,21 +126,22 @@ class SignUpFragment : Fragment() {
     }
 
     private fun passwordChangeVisibility(iV: AppCompatImageView, password: AppCompatEditText) {
-        val frameAnimation = iV.drawable as AnimationDrawable
-        frameAnimation.start()
-
         val invisible = AppCompatResources.getDrawable(cA, R.drawable.password_invisible_animation)
         val visible = AppCompatResources.getDrawable(cA, R.drawable.password_visible_animation)
 
         CoroutineScope(Dispatchers.Main).launch {
+            val frameAnimation = iV.drawable as AnimationDrawable
+            frameAnimation.start()
             delay(525)
             frameAnimation.stop()
-            if (iV.drawable == invisible) {
+            if (passwordVisible) {
                 iV.setImageDrawable(visible)
                 password.transformationMethod = PasswordTransformationMethod.getInstance()
+                passwordVisible = false
             } else {
                 iV.setImageDrawable(invisible)
                 password.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                passwordVisible = true
             }
         }
     }
