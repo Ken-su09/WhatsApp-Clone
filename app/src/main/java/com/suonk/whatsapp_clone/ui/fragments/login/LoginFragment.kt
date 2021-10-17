@@ -1,5 +1,7 @@
 package com.suonk.whatsapp_clone.ui.fragments.login
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.text.Editable
@@ -38,6 +40,11 @@ class LoginFragment : Fragment() {
     lateinit var auth: FirebaseAuth
     private var passwordVisible = false
 
+    private lateinit var sharedPrefCheckBox: SharedPreferences
+    private lateinit var sharedPrefEmail: SharedPreferences
+    private lateinit var sharedPrefPassword: SharedPreferences
+    private var fieldsRemembered = false
+
     //endregion
 
     override fun onCreateView(
@@ -53,9 +60,13 @@ class LoginFragment : Fragment() {
 
     private fun initializeUI() {
         cA = activity as MainActivity
+        isConnected()
+        initSharedPreferences()
         signUpEmailTextListener()
         loginPasswordChangeVisibilityClick()
         loginButtonClick()
+        checkboxClick()
+        rememberFillFields()
     }
 
     //endregion
@@ -96,6 +107,12 @@ class LoginFragment : Fragment() {
                 password.transformationMethod = HideReturnsTransformationMethod.getInstance()
                 passwordVisible = true
             }
+        }
+    }
+
+    private fun checkboxClick() {
+        binding?.loginCheckboxRemember?.setOnCheckedChangeListener { _, isChecked ->
+            checkboxChangeSharedPreferences(isChecked)
         }
     }
 
@@ -188,8 +205,9 @@ class LoginFragment : Fragment() {
                     ).await()
 
                     withContext(Dispatchers.Main) {
+                        sharedPreferencesRememberIsChecked()
                         toastWarningMessage("Log In")
-                        cA.showOnlineChatFragment()
+                        cA.showMainFragment()
                     }
                 }
             } catch (e: Exception) {
@@ -201,6 +219,55 @@ class LoginFragment : Fragment() {
     }
 
     //endregion
+
+    //region ======================================= SharedPreferences ======================================
+
+    private fun initSharedPreferences() {
+        sharedPrefCheckBox = cA.getSharedPreferences("remember_checkbox", Context.MODE_PRIVATE)
+        fieldsRemembered = sharedPrefCheckBox.getBoolean("remember_checkbox", false)
+        binding?.loginCheckboxRemember?.isChecked = fieldsRemembered
+    }
+
+    private fun checkboxChangeSharedPreferences(isChecked: Boolean) {
+        val editorCheckBox: SharedPreferences.Editor = sharedPrefCheckBox.edit()
+        editorCheckBox.putBoolean("remember_checkbox", isChecked)
+        editorCheckBox.apply()
+    }
+
+    private fun sharedPreferencesRememberIsChecked() {
+        if (binding?.loginCheckboxRemember?.isChecked!!) {
+            sharedPrefEmail = cA.getSharedPreferences("remember_email", Context.MODE_PRIVATE)
+            val editorEmail: SharedPreferences.Editor = sharedPrefEmail.edit()
+            editorEmail.putString("remember_email", binding?.loginEmail?.text.toString())
+            editorEmail.apply()
+
+            sharedPrefPassword = cA.getSharedPreferences("remember_password", Context.MODE_PRIVATE)
+            val editorPassword: SharedPreferences.Editor = sharedPrefPassword.edit()
+            editorPassword.putString("remember_password", binding?.loginPassword?.text.toString())
+            editorPassword.apply()
+        }
+    }
+
+    private fun rememberFillFields() {
+        val sharedPrefEmail = cA.getSharedPreferences("remember_email", Context.MODE_PRIVATE)
+        val sharedPrefPassword = cA.getSharedPreferences("remember_password", Context.MODE_PRIVATE)
+
+        binding?.apply {
+            if (binding?.loginCheckboxRemember?.isChecked!!) {
+                loginEmail.setText(sharedPrefEmail.getString("remember_email", "")!!)
+                loginPassword.setText(sharedPrefPassword.getString("remember_password", ""))
+            }
+        }
+    }
+
+    //endregion
+
+    private fun isConnected() {
+        if (auth.currentUser != null) {
+            Log.i("isConnected", "${auth.currentUser}")
+            cA.showMainFragment()
+        }
+    }
 
     private fun toastWarningMessage(msg: String) {
         Log.i("toastWarningMessage", msg)
