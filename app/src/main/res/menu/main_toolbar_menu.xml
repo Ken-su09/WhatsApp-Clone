@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/toolbar_search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/title_search"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/toolbar_logout"
+        android:icon="@drawable/ic_logout"
+        android:title="@string/title_search"
+        app:showAsAction="always" />
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/toolbar_new_group"
+            android:title="@string/new_group_title" />
+        <item
+            android:id="@+id/toolbar_devices_connected"
+            android:title="@string/devices_connected" />
+        <item
+            android:id="@+id/toolbar_settings"
+            android:title="@string/settings_title" />
+    </group>
+</menu>

@@ -1,15 +1,23 @@
 <resources>
     <string name="app_name">WhatsApp-Clone</string>
+
     <string name="sign_up_name">Name</string>
     <string name="sign_up_phone_number">Phone Number</string>
     <string name="sign_up_email">Email</string>
     <string name="sign_up_password">Password</string>
     <string name="sign_up_password_confirmed">Confirm password</string>
     <string name="sign_up_button">Sign Up</string>
+
     <string name="fields_empty_msg">Fields should not be empty</string>
     <string name="email_not_valid_msg">Email is not valid</string>
     <string name="password_not_enough_char">Your password should contain more than 6 characters</string>
     <string name="check_password_and_confirmed">Those two passwords are not the same</string>
     <string name="verify_phone_number">Verify Phone Number</string>
     <string name="alert_dialog_verify_number_msg">Enter verification code if not automatically authenticated</string>
+    <string name="title_search">Search</string>
+    <string name="new_group_title">New group</string>
+    <string name="settings_title">Settings</string>
+    <string name="devices_connected">Devices connected</string>
+    <string name="alert_dialog_negative_button_text">Cancel</string>
+    <string name="alert_dialog_logout_button">Logout</string>
 </resources>
