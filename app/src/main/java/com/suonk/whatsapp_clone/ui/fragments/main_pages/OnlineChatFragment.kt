@@ -9,7 +9,11 @@ import com.suonk.whatsapp_clone.databinding.FragmentOnlineChatBinding
 
 class OnlineChatFragment : Fragment() {
 
+    //region ========================================== Val or Var ==========================================
+
     private var binding: FragmentOnlineChatBinding? = null
+
+    //endregion
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

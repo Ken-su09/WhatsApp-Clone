@@ -4,7 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import com.suonk.whatsapp_clone.R
 import com.suonk.whatsapp_clone.ui.fragments.SplashScreenFragment
 import com.suonk.whatsapp_clone.ui.fragments.login.MainLoginFragment
-import com.suonk.whatsapp_clone.ui.fragments.main_pages.OnlineChatFragment
+import com.suonk.whatsapp_clone.ui.fragments.main_pages.MainFragment
 import javax.inject.Inject
 
 class Navigator @Inject constructor(var activity: FragmentActivity?) {
@@ -23,11 +23,10 @@ class Navigator @Inject constructor(var activity: FragmentActivity?) {
             ?.commit()
     }
 
-    fun showOnlineChatFragment() {
+    fun showMainFragment() {
         activity?.supportFragmentManager
             ?.beginTransaction()
-            ?.replace(R.id.fragment_container_view, OnlineChatFragment())
-            ?.addToBackStack(null)
+            ?.replace(R.id.fragment_container_view, MainFragment())
             ?.commit()
     }
 }

@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.WindowManager
-import com.suonk.whatsapp_clone.R
 import com.suonk.whatsapp_clone.databinding.ActivityMainBinding
 import com.suonk.whatsapp_clone.navigation.Coordinator
 import com.suonk.whatsapp_clone.navigation.Navigator
@@ -47,13 +46,17 @@ class MainActivity : AppCompatActivity() {
         coordinator.showSplashScreen()
 
         CoroutineScope(Dispatchers.Main).launch {
-            delay(500)
-            coordinator.showMainLoginFragment()
+            delay(650)
+            showMainLoginFragment()
         }
     }
 
-    fun showOnlineChatFragment() {
-        coordinator.showOnlineChatFragment()
+    fun showMainFragment() {
+        coordinator.showMainFragment()
+    }
+
+    fun showMainLoginFragment() {
+        coordinator.showMainLoginFragment()
     }
 
     fun openGalleryForImage(civ: CircleImageView) {

@@ -17,8 +17,6 @@
         android:layout_height="80dp"
         android:layout_margin="10dp"
         android:src="@drawable/gto"
-        app:civ_border_color="#00bc48"
-        app:civ_border_width="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

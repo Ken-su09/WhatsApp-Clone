@@ -12,7 +12,7 @@ class Coordinator @Inject constructor(var navigator: Navigator) {
         navigator.showMainLoginFragment()
     }
 
-    fun showOnlineChatFragment() {
-        navigator.showOnlineChatFragment()
+    fun showMainFragment() {
+        navigator.showMainFragment()
     }
 }
