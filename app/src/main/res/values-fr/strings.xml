@@ -10,4 +10,6 @@
     <string name="email_not_valid_msg">L\'email n\'est pas valide</string>
     <string name="password_not_enough_char">Votre mot de passe doit contenir plus de 6 caractères</string>
     <string name="check_password_and_confirmed">Ces deux mots de passe ne sont pas les mêmes</string>
+    <string name="verify_phone_number">Vérification du numéro de téléphone</string>
+    <string name="alert_dialog_verify_number_msg">Enter verification code if not automatically authenticated</string>
 </resources>

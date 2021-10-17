@@ -12,22 +12,46 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatImageView
 import com.suonk.whatsapp_clone.R
-import com.suonk.whatsapp_clone.databinding.FragmentLoginBinding
 import com.suonk.whatsapp_clone.databinding.FragmentSignUpBinding
 import com.suonk.whatsapp_clone.ui.activity.MainActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
+import java.lang.Exception
 import java.util.regex.Pattern
+import android.graphics.Bitmap
+import android.graphics.Canvas
 
+import android.graphics.drawable.BitmapDrawable
+
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.*
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+
+
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
 
     //region ========================================== Val or Var ==========================================
 
     private var binding: FragmentSignUpBinding? = null
-    private lateinit var contextActivity: MainActivity
+    private lateinit var cA: MainActivity
+
+    @Inject
+    lateinit var auth: FirebaseAuth
+
+    private lateinit var callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
+    private lateinit var myCredential: PhoneAuthCredential
 
     //endregion
 
@@ -44,14 +68,14 @@ class SignUpFragment : Fragment() {
     //region ============================================== UI ==============================================
 
     private fun initializeUI() {
-        contextActivity = activity as MainActivity
+        cA = activity as MainActivity
 
         addUserImageClick()
         signUpButtonClick()
-        passwordGoToVisibleClick()
-        passwordGoToInvisibleClick()
-
+        signUpPasswordClick()
+        confirmPasswordClick()
         signUpEmailTextListener()
+        verifyCodeClick()
     }
 
     //endregion
@@ -77,49 +101,65 @@ class SignUpFragment : Fragment() {
     //region ============================================ Clicks ============================================
 
     private fun signUpButtonClick() {
-        if (checkAll()) {
-
-        }
-    }
-
-    private fun passwordGoToVisibleClick() {
-        binding?.apply {
-            loginPasswordGoToVisible.setOnClickListener {
-                val frameAnimation = loginPasswordGoToVisible.drawable as AnimationDrawable
-                frameAnimation.start()
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(525)
-                    frameAnimation.stop()
-                    loginPasswordGoToVisible.visibility = View.GONE
-                    loginPasswordGoToInvisible.visibility = View.VISIBLE
-                    signUpPassword.transformationMethod =
-                        HideReturnsTransformationMethod.getInstance()
-                }
+        binding?.signUpButton?.setOnClickListener {
+            if (checkAll()) {
+                registerNewUser()
             }
         }
     }
 
-    private fun passwordGoToInvisibleClick() {
+    private fun signUpPasswordClick() {
         binding?.apply {
-            loginPasswordGoToInvisible.setOnClickListener {
-                val frameAnimation = loginPasswordGoToInvisible.drawable as AnimationDrawable
-                frameAnimation.start()
+            signUpPasswordGoToVisible.setOnClickListener {
+                passwordChangeVisibility(signUpPasswordGoToVisible, signUpPassword)
+            }
+        }
+    }
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(525)
-                    frameAnimation.stop()
-                    loginPasswordGoToVisible.visibility = View.VISIBLE
-                    loginPasswordGoToInvisible.visibility = View.GONE
-                    signUpPassword.transformationMethod = PasswordTransformationMethod.getInstance()
-                }
+    private fun confirmPasswordClick() {
+        binding?.apply {
+            confirmPasswordGoToVisible.setOnClickListener {
+                passwordChangeVisibility(confirmPasswordGoToVisible, signUpConfirmPassword)
+            }
+        }
+    }
+
+    private fun passwordChangeVisibility(iV: AppCompatImageView, password: AppCompatEditText) {
+        val frameAnimation = iV.drawable as AnimationDrawable
+        frameAnimation.start()
+
+        val invisible = AppCompatResources.getDrawable(cA, R.drawable.password_invisible_animation)
+        val visible = AppCompatResources.getDrawable(cA, R.drawable.password_visible_animation)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(525)
+            frameAnimation.stop()
+            if (iV.drawable == invisible) {
+                iV.setImageDrawable(visible)
+                password.transformationMethod = PasswordTransformationMethod.getInstance()
+            } else {
+                iV.setImageDrawable(invisible)
+                password.transformationMethod = HideReturnsTransformationMethod.getInstance()
             }
         }
     }
 
     private fun addUserImageClick() {
         binding?.signUpUserImg?.setOnClickListener {
-            contextActivity.openGalleryForImage(binding?.signUpUserImg!!)
+            cA.openGalleryForImage(binding?.signUpUserImg!!)
+        }
+    }
+
+    private fun verifyCodeClick() {
+        binding?.apply {
+            verifyPhoneNumberButton.setOnClickListener {
+                val code = verifyPhoneNumberEditText.text.toString()
+                if (code.isEmpty() || code.length < 6) {
+                    toastWarningMessage("Wrong code")
+                } else {
+                    getCallbacksFromPhoneAuthProvider(verifyPhoneNumberEditText.text.toString())
+                }
+            }
         }
     }
 
@@ -144,13 +184,12 @@ class SignUpFragment : Fragment() {
 
     private fun checkEmailConstantly() {
         val emailPattern = Pattern.compile("[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+")
-
         binding?.apply {
             if (signUpEmail.text.toString().trim().matches(emailPattern.toRegex())) {
                 loginEmailValidation.visibility = View.VISIBLE
                 loginEmailValidation.setImageDrawable(
                     AppCompatResources.getDrawable(
-                        contextActivity,
+                        cA,
                         R.drawable.ic_check_email
                     )
                 )
@@ -161,7 +200,7 @@ class SignUpFragment : Fragment() {
                     loginEmailValidation.visibility = View.VISIBLE
                     loginEmailValidation.setImageDrawable(
                         AppCompatResources.getDrawable(
-                            contextActivity,
+                            cA,
                             R.drawable.ic_check_email_cross
                         )
                     )
@@ -171,7 +210,7 @@ class SignUpFragment : Fragment() {
     }
 
     private fun checkIfPasswordMoreThan6Chars(): Boolean {
-        return binding?.signUpPassword?.text?.length!! < 6
+        return binding?.signUpPassword?.text?.length!! > 6
     }
 
     private fun checkIfPasswordAndConfirmedPassword(): Boolean {
@@ -205,8 +244,134 @@ class SignUpFragment : Fragment() {
 
     //endregion
 
+    //region ========================================= User Firebase ========================================
+
+    private fun registerNewUser() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                binding?.apply {
+                    withContext(Dispatchers.Main) {
+                        registerUserLayout.visibility = View.GONE
+                        verifyPhoneNumberLayout.visibility = View.VISIBLE
+                    }
+                    auth.createUserWithEmailAndPassword(
+                        signUpEmail.text.toString(),
+                        signUpPassword.text.toString()
+                    )
+                    val phoneNumber = signUpPhoneNumber.text.toString()
+                    verifyPhoneNumber(convertNumberToWhatsappNumber(phoneNumber))
+
+                    if (auth.currentUser != null) {
+                        updateUserData(auth.currentUser!!)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    toastWarningMessage(e.message!!)
+                }
+            }
+        }
+    }
+
+    private fun updateUserData(currentUser: FirebaseUser) {
+        binding?.apply {
+            currentUser.let { user ->
+                val username = signUpUsername.text.toString()
+                val photoURI = getImageUri(drawableToBitmap(signUpUserImg.drawable)!!)
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(username)
+                    .setPhotoUri(photoURI)
+                    .build()
+
+                user.updatePhoneNumber(myCredential)
+                user.updateProfile(profileUpdates)
+            }
+        }
+    }
+
+    //endregion
+
+    //region ===================================== Verify Phone Number ======================================
+
+    private fun verifyPhoneNumber(phoneNumber: String) {
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(cA)
+            .setCallbacks(callbacks)
+            .build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    private fun getCallbacksFromPhoneAuthProvider(codeByUser: String) {
+        callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                myCredential = credential
+            }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                toastWarningMessage(e.message!!)
+            }
+
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                myCredential = PhoneAuthProvider.getCredential(verificationId, codeByUser)
+            }
+        }
+    }
+
+    //endregion
+
+    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
+        if (drawable is BitmapDrawable) {
+            if (drawable.bitmap != null) {
+                return drawable.bitmap
+            }
+        }
+        val bitmap: Bitmap? = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+            Bitmap.createBitmap(
+                1,
+                1,
+                Bitmap.Config.ARGB_8888
+            ) // Single color bitmap will be created of 1x1 pixel
+        } else {
+            Bitmap.createBitmap(
+                drawable.intrinsicWidth,
+                drawable.intrinsicHeight,
+                Bitmap.Config.ARGB_8888
+            )
+        }
+        val canvas = Canvas(bitmap!!)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    }
+
+    private fun getImageUri(inImage: Bitmap): Uri? {
+        val bytes = ByteArrayOutputStream()
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+        val path = MediaStore.Images.Media.insertImage(
+            cA.contentResolver,
+            inImage,
+            "Title",
+            null
+        )
+        return Uri.parse(path)
+    }
+
+    private fun convertNumberToWhatsappNumber(phoneNumber: String): String {
+        if (phoneNumber[0] == '0') {
+            return "+33$phoneNumber"
+        }
+        return phoneNumber
+    }
+
     private fun toastWarningMessage(msg: String) {
-        Toast.makeText(contextActivity, msg, Toast.LENGTH_LONG).show()
+        Log.i("toastWarningMessage", msg)
+        Toast.makeText(cA, msg, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
