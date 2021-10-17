@@ -1,23 +1,21 @@
 package com.suonk.whatsapp_clone.ui.fragments.main_pages
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.suonk.whatsapp_clone.R
-import com.suonk.whatsapp_clone.databinding.FragmentChatsBinding
-import com.suonk.whatsapp_clone.databinding.FragmentSplashScreenBinding
+import androidx.fragment.app.Fragment
+import com.suonk.whatsapp_clone.databinding.FragmentOnlineChatBinding
 
-class ChatsFragment : Fragment() {
+class OnlineChatFragment : Fragment() {
 
-    private var binding: FragmentChatsBinding? = null
+    private var binding: FragmentOnlineChatBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentChatsBinding.inflate(inflater, container, false)
+        binding = FragmentOnlineChatBinding.inflate(inflater, container, false)
         initializeUI()
         return binding?.root
     }

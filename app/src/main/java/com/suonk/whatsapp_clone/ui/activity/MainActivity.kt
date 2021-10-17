@@ -4,12 +4,17 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.WindowManager
 import com.suonk.whatsapp_clone.R
 import com.suonk.whatsapp_clone.databinding.ActivityMainBinding
 import com.suonk.whatsapp_clone.navigation.Coordinator
 import com.suonk.whatsapp_clone.navigation.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,9 +40,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         navigator.activity = this
         coordinator = Coordinator(navigator)
         coordinator.showSplashScreen()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(500)
+            coordinator.showMainLoginFragment()
+        }
+    }
+
+    fun showOnlineChatFragment() {
+        coordinator.showOnlineChatFragment()
     }
 
     fun openGalleryForImage(civ: CircleImageView) {
