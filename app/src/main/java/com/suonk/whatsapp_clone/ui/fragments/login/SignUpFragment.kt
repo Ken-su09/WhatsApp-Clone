@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class SignUpFragment : Fragment() {
 
